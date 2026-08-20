@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mapa de empatía — Sanddy Almacén</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Work+Sans:wght@400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#faf4f1;
+    --paper:#fffdfb;
+    --ink:#241a20;
+    --ink-soft:#6b5a60;
+    --line:#ddcdc4;
+    --rose:#c24868;
+    --rose-deep:#7a2a40;
+    --rose-tint:#f6e3e7;
+    --teal:#1e6e5c;
+    --teal-deep:#123f35;
+    --teal-tint:#e2ede9;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Work Sans', sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .page{max-width:1040px;margin:0 auto;padding:48px 32px 80px;}
+
+  header{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-end;
+    flex-wrap:wrap;
+    gap:24px;
+    border-bottom:1px solid var(--line);
+    padding-bottom:28px;
+    margin-bottom:8px;
+  }
+  .eyebrow{
+    font-family:'Space Mono', monospace;
+    font-size:12px;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+    display:block;
+    margin-bottom:10px;
+  }
+  h1{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size:44px;
+    margin:0;
+    line-height:1.05;
+  }
+  .tabs{display:flex;gap:8px;}
+  .tab{
+    font-family:'Space Mono', monospace;
+    font-size:12px;
+    text-transform:uppercase;
+    letter-spacing:0.04em;
+    background:var(--paper);
+    color:var(--ink-soft);
+    border:1px solid var(--line);
+    border-radius:999px;
+    padding:10px 18px;
+    cursor:pointer;
+    transition:all .15s ease;
+  }
+  .tab:hover{border-color:var(--ink-soft);}
+  .tab.active{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+
+  .persona{display:none;}
+  .persona.active{display:block;}
+
+  .persona-meta{
+    display:flex;
+    align-items:baseline;
+    gap:16px;
+    flex-wrap:wrap;
+    padding:28px 0 8px;
+  }
+  .persona-meta .ficha{
+    font-family:'Space Mono', monospace;
+    font-size:12px;
+    color:var(--accent-deep);
+    background:var(--accent-tint);
+    border:1px solid var(--accent);
+    border-radius:6px;
+    padding:4px 9px;
+  }
+  .persona-meta h2{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size:26px;
+    margin:0;
+  }
+  .persona-meta p{
+    margin:0;
+    color:var(--ink-soft);
+    font-size:14px;
+  }
+
+  .persona-cliente{--accent:var(--rose);--accent-deep:var(--rose-deep);--accent-tint:var(--rose-tint);}
+  .persona-sandra{--accent:var(--teal);--accent-deep:var(--teal-deep);--accent-tint:var(--teal-tint);}
+
+  .map{
+    position:relative;
+    display:grid;
+    grid-template-columns:1fr 1.3fr 1fr;
+    grid-template-rows:auto auto auto;
+    align-items:center;
+    min-height:460px;
+    margin-top:12px;
+  }
+  .lines{position:absolute;inset:0;width:100%;height:100%;z-index:0;}
+  .x-line{stroke:var(--accent);stroke-width:1.2;opacity:0.45;}
+
+  .avatar{
+    grid-column:2;grid-row:2;
+    justify-self:center;
+    z-index:2;
+    width:118px;height:118px;
+    border-radius:50%;
+    background:var(--accent);
+    display:flex;align-items:center;justify-content:center;
+    box-shadow:0 0 0 8px var(--paper);
+  }
+
+  .quad{position:relative;z-index:1;padding:20px;max-width:280px;}
+  .quad-top{grid-column:2;grid-row:1;justify-self:center;text-align:center;}
+  .quad-left{grid-column:1;grid-row:2;justify-self:end;text-align:right;}
+  .quad-right{grid-column:3;grid-row:2;justify-self:start;text-align:left;}
+  .quad-bottom{grid-column:2;grid-row:3;justify-self:center;text-align:center;}
+
+  .tag{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    font-family:'Space Mono', monospace;
+    font-size:12px;
+    letter-spacing:0.02em;
+    background:var(--paper);
+    border:1px solid var(--accent);
+    color:var(--accent-deep);
+    border-radius:999px;
+    padding:6px 14px 6px 10px;
+    margin-bottom:10px;
+  }
+  .tag::before{
+    content:"";
+    width:7px;height:7px;
+    border-radius:50%;
+    background:var(--bg);
+    border:1px solid var(--accent);
+    display:block;
+  }
+  .quad-left .tag, .quad-left ul{margin-left:auto;}
+  .quad ul{margin:0;padding:0;list-style:none;}
+  .quad-top ul, .quad-bottom ul{margin:0 auto;}
+  .quad li{
+    font-size:14px;
+    line-height:1.55;
+    color:var(--ink);
+    padding:3px 0;
+  }
+
+  .footer-boxes{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:20px;
+    border-top:1px solid var(--line);
+    margin-top:18px;
+    padding-top:28px;
+  }
+  .box{
+    background:var(--paper);
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:22px 24px;
+  }
+  .box ul{margin:0;padding:0;list-style:none;}
+  .box li{
+    font-size:14px;
+    line-height:1.6;
+    padding:4px 0 4px 18px;
+    position:relative;
+  }
+  .box li::before{
+    content:"";
+    position:absolute;left:0;top:11px;
+    width:6px;height:6px;
+    border-radius:50%;
+    background:var(--accent);
+  }
+
+  footer.credit{
+    text-align:center;
+    font-family:'Space Mono', monospace;
+    font-size:11px;
+    color:var(--ink-soft);
+    margin-top:56px;
+    letter-spacing:0.03em;
+  }
+
+  @media (max-width:760px){
+    h1{font-size:32px;}
+    .lines{display:none;}
+    .map{
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:18px;
+      min-height:0;
+    }
+    .avatar{box-shadow:none;}
+    .quad{max-width:420px;text-align:left !important;justify-self:stretch !important;}
+    .quad-left .tag, .quad-left ul{margin-left:0;}
+    .quad ul{margin:0;}
+    .footer-boxes{grid-template-columns:1fr;}
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header>
+    <div>
+      <span class="eyebrow">Sanddy Almacén · Investigación UX</span>
+      <h1>Mapa de empatía</h1>
+    </div>
+    <div class="tabs">
+      <button class="tab active" data-target="cliente">Cliente comprador</button>
+      <button class="tab" data-target="sandra">Sandra Herrera</button>
+    </div>
+  </header>
+
+  <section id="cliente" class="persona persona-cliente active">
+    <div class="persona-meta">
+      <span class="ficha">Ficha 01 / 02</span>
+      <h2>Cliente comprador final</h2>
+      <p>Consulta y compra por WhatsApp y redes sociales, a cualquier hora</p>
+    </div>
+
+    <div class="map">
+      <svg class="lines" viewBox="0 0 1000 560" preserveAspectRatio="none">
+        <line class="x-line" x1="0" y1="0" x2="1000" y2="560"/>
+        <line class="x-line" x1="1000" y1="0" x2="0" y2="560"/>
+      </svg>
+
+      <div class="avatar">
+        <svg viewBox="0 0 100 100" width="60" height="60" aria-hidden="true">
+          <circle cx="50" cy="36" r="17" fill="#fffdfb"/>
+          <path d="M18 92 C18 64 32 54 50 54 C68 54 82 64 82 92 Z" fill="#fffdfb"/>
+        </svg>
+      </div>
+
+      <div class="quad quad-top">
+        <span class="tag">¿Qué piensa y siente?</span>
+        <ul>
+          <li>Quiere respuesta inmediata, sin esperar horas</li>
+          <li>Duda si el precio y el stock siguen vigentes</li>
+          <li>Se siente inseguro por falta de información clara</li>
+        </ul>
+      </div>
+
+      <div class="quad quad-left">
+        <span class="tag">¿Qué oye?</span>
+        <ul>
+          <li>"Espera, te confirmo el precio"</li>
+          <li>Recomendaciones de otras personas</li>
+          <li>Comentarios sobre demoras en la atención</li>
+        </ul>
+      </div>
+
+      <div class="quad quad-right">
+        <span class="tag">¿Qué ve?</span>
+        <ul>
+          <li>Fotos sueltas y estados esporádicos</li>
+          <li>Ningún catálogo ordenado ni completo</li>
+          <li>Otros negocios con tienda online</li>
+        </ul>
+      </div>
+
+      <div class="quad quad-bottom">
+        <span class="tag">¿Qué dice y hace?</span>
+        <ul>
+          <li>Pregunta precio y disponibilidad</li>
+          <li>Pide fotos del producto</li>
+          <li>Escribe fuera de horario y espera</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-boxes">
+      <div class="box">
+        <span class="tag">¿Qué le duele?</span>
+        <ul>
+          <li>No hay respuesta 24/7</li>
+          <li>Repite las mismas preguntas una y otra vez</li>
+          <li>No puede ver el inventario completo</li>
+        </ul>
+      </div>
+      <div class="box">
+        <span class="tag">¿A qué aspira?</span>
+        <ul>
+          <li>Comprar rápido y con confianza</li>
+          <li>Explorar el catálogo por su cuenta</li>
+          <li>Contactar solo para cerrar la compra</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section id="sandra" class="persona persona-sandra">
+    <div class="persona-meta">
+      <span class="ficha">Ficha 02 / 02</span>
+      <h2>Sandra Herrera</h2>
+      <p>Dueña y administradora de Sanddy Almacén</p>
+    </div>
+
+    <div class="map">
+      <svg class="lines" viewBox="0 0 1000 560" preserveAspectRatio="none">
+        <line class="x-line" x1="0" y1="0" x2="1000" y2="560"/>
+        <line class="x-line" x1="1000" y1="0" x2="0" y2="560"/>
+      </svg>
+
+      <div class="avatar">
+        <svg viewBox="0 0 100 100" width="60" height="60" aria-hidden="true">
+          <circle cx="50" cy="36" r="17" fill="#fffdfb"/>
+          <path d="M18 92 C18 64 32 54 50 54 C68 54 82 64 82 92 Z" fill="#fffdfb"/>
+        </svg>
+      </div>
+
+      <div class="quad quad-top">
+        <span class="tag">¿Qué piensa y siente?</span>
+        <ul>
+          <li>Siente que pierde ventas por no responder a tiempo</li>
+          <li>Le preocupa el costo de mantener una plataforma</li>
+          <li>Se agota respondiendo siempre lo mismo</li>
+        </ul>
+      </div>
+
+      <div class="quad quad-left">
+        <span class="tag">¿Qué oye?</span>
+        <ul>
+          <li>"Te escribí anoche y no respondiste"</li>
+          <li>Las mismas 4 preguntas de siempre</li>
+          <li>Sugerencias de tener tienda online</li>
+        </ul>
+      </div>
+
+      <div class="quad quad-right">
+        <span class="tag">¿Qué ve?</span>
+        <ul>
+          <li>Su Excel desordenado y fotos dispersas</li>
+          <li>Mensajes de WhatsApp acumulados sin responder</li>
+          <li>Negocios con presencia digital más sólida</li>
+        </ul>
+      </div>
+
+      <div class="quad quad-bottom">
+        <span class="tag">¿Qué dice y hace?</span>
+        <ul>
+          <li>Responde consultas una por una</li>
+          <li>Actualiza el inventario a mano en Excel</li>
+          <li>Publica fotos de forma esporádica</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-boxes">
+      <div class="box">
+        <span class="tag">¿Qué le duele?</span>
+        <ul>
+          <li>Su tiempo se va en preguntas repetitivas</li>
+          <li>Pierde clientes que consultan fuera de horario</li>
+          <li>Presupuesto limitado ($30.000 mensuales)</li>
+        </ul>
+      </div>
+      <div class="box">
+        <span class="tag">¿A qué aspira?</span>
+        <ul>
+          <li>Vender más con menos esfuerzo manual</li>
+          <li>Tener el inventario siempre actualizado</li>
+          <li>Dar una imagen profesional disponible 24/7</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <footer class="credit">Lean UX Canvas · Sanddy Almacén — 17.08.2026</footer>
+</div>
+
+<script>
+  const tabs = document.querySelectorAll('.tab');
+  const personas = document.querySelectorAll('.persona');
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      tabs.forEach(t => t.classList.remove('active'));
+      personas.forEach(p => p.classList.remove('active'));
+      tab.classList.add('active');
+      document.getElementById(tab.dataset.target).classList.add('active');
+    });
+  });
+</script>
+</body>
+</html>
