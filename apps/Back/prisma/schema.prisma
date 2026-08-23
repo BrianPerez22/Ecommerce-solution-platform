@@ -1,0 +1,76 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Categoria {
+  id        String     @id @default(cuid())
+  nombre    String
+  slug      String     @unique
+  orden     Int        @default(0)
+  productos Producto[]
+
+  @@map("categorias")
+}
+
+model Producto {
+  id              String        @id @default(cuid())
+  nombre          String
+  descripcion     String        @default("")
+  caracteristicas String[]      @default([])
+  precio          Int           @default(0)
+  stock           Int           @default(0)
+  imagenes        String[]      @default([])
+  activo          Boolean       @default(true)
+  categoriaId     String
+  categoria       Categoria     @relation(fields: [categoriaId], references: [id], onDelete: Restrict)
+  lineasPedido    LineaPedido[]
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  @@index([categoriaId])
+  @@map("productos")
+}
+
+/// Snapshot inmutable de un pedido confirmado por el cliente vía WhatsApp.
+model Pedido {
+  id            String        @id @default(cuid())
+  codigo        String        @unique
+  clienteNombre String?
+  total         Int
+  lineas        LineaPedido[]
+  createdAt     DateTime      @default(now())
+
+  @@map("pedidos")
+}
+
+/// Guarda nombre y precio del producto al momento del pedido, para que el
+/// historial no cambie si el producto se edita o se elimina después.
+model LineaPedido {
+  id             String    @id @default(cuid())
+  pedidoId       String
+  pedido         Pedido    @relation(fields: [pedidoId], references: [id], onDelete: Cascade)
+  productoId     String?
+  producto       Producto? @relation(fields: [productoId], references: [id], onDelete: SetNull)
+  productoNombre String
+  cantidad       Int
+  precioUnitario Int
+
+  @@index([pedidoId])
+  @@map("lineas_pedido")
+}
+
+/// Cuenta de administrador del panel. Por ahora solo se siembra una.
+model Usuario {
+  id           String   @id @default(cuid())
+  username     String   @unique
+  passwordHash String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@map("usuarios")
+}

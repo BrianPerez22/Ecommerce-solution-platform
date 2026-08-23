@@ -1,0 +1,19 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: sanddy-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: sanddy
+      POSTGRES_PASSWORD: sanddy
+      POSTGRES_DB: sanddy_almacen
+    ports:
+      - '5432:5432'
+    volumes:
+      - sanddy_db_data:/var/lib/postgresql/data
+
+volumes:
+  sanddy_db_data:
+
+# TODO(futuro): agregar aquí un servicio `api` que construya la imagen de Back/
+# (con su propio Dockerfile) una vez se quiera dockerizar también el backend.

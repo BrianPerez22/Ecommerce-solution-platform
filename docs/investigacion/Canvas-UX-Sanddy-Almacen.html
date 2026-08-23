@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lean UX Canvas · Sanddy Almacén</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bitter:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#faf8f3;
+    --paper-edge:#f1efe7;
+    --ink:#2b2620;
+    --ink-soft:#5c564c;
+    --line:#ddd8ca;
+
+    --coral:#b5432a;
+    --coral-bg:#f6e6e0;
+    --green:#3d7a52;
+    --green-bg:#e2ede2;
+    --blue:#2c5c86;
+    --blue-bg:#e1e9ef;
+    --gold:#a9781f;
+    --gold-bg:#f2e8d3;
+  }
+
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:#e9e6dc;
+    font-family:'Inter',sans-serif;
+    color:var(--ink);
+    padding:28px 12px 60px;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  .sheet{
+    max-width:1180px;
+    margin:0 auto;
+    background:var(--paper);
+    position:relative;
+    box-shadow:0 18px 40px -20px rgba(30,25,15,0.35);
+    padding:0 0 30px;
+  }
+  /* perforated edge, top & bottom — the receipt motif */
+  .sheet::before,.sheet::after{
+    content:"";
+    display:block;
+    height:14px;
+    background-image:radial-gradient(circle at 10px 50%, #e9e6dc 6px, transparent 6.5px);
+    background-size:20px 14px;
+    background-repeat:repeat-x;
+  }
+  .sheet::before{margin-bottom:0;}
+  .sheet::after{margin-top:0;}
+
+  header{
+    padding:34px 44px 20px;
+    border-bottom:1px dashed var(--line);
+  }
+  .eyebrow{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11.5px;
+    letter-spacing:.12em;
+    color:var(--ink-soft);
+    text-transform:uppercase;
+    margin-bottom:10px;
+  }
+  h1{
+    font-family:'Bitter',serif;
+    font-weight:700;
+    font-size:clamp(28px,4vw,40px);
+    margin:0 0 6px;
+    letter-spacing:-0.01em;
+  }
+  .project-desc{
+    font-size:14.5px;
+    color:var(--ink-soft);
+    max-width:720px;
+    line-height:1.5;
+    margin:0 0 18px;
+  }
+  .meta-row{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+    margin-bottom:16px;
+  }
+  .chip{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11.5px;
+    padding:5px 12px;
+    border:1px solid var(--line);
+    border-radius:20px;
+    color:var(--ink-soft);
+    background:#fff;
+  }
+  .chip b{color:var(--ink);font-weight:600;}
+
+  .howto{
+    font-size:12.5px;
+    color:var(--ink-soft);
+    line-height:1.55;
+    border-left:2px solid var(--gold);
+    padding-left:12px;
+  }
+  .howto b{color:var(--ink);}
+
+  .legend{
+    display:flex;
+    flex-wrap:wrap;
+    gap:16px;
+    padding:16px 44px;
+    font-size:11.5px;
+    color:var(--ink-soft);
+    border-bottom:1px dashed var(--line);
+  }
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .dot{width:9px;height:9px;border-radius:50%;display:inline-block;}
+
+  /* ===== grid ===== */
+  .canvas{
+    display:grid;
+    grid-template-columns:1fr 1fr 1fr;
+    grid-template-areas:
+      "p1 s5 r2"
+      "u3 sp u4"
+      "h6 rk7 v8";
+    gap:1px;
+    background:var(--line);
+    margin:22px 44px 0;
+    border:1px solid var(--line);
+  }
+  .box{
+    background:var(--paper);
+    padding:18px 18px 20px;
+    display:flex;
+    flex-direction:column;
+    min-height:230px;
+  }
+  .box[data-area="p1"]{grid-area:p1;}
+  .box[data-area="s5"]{grid-area:s5;}
+  .box[data-area="r2"]{grid-area:r2;}
+  .box[data-area="u3"]{grid-area:u3;}
+  .box[data-area="u4"]{grid-area:u4;}
+  .box[data-area="h6"]{grid-area:h6;}
+  .box[data-area="rk7"]{grid-area:rk7;}
+  .box[data-area="v8"]{grid-area:v8;}
+
+  .box-head{
+    display:flex;
+    align-items:flex-start;
+    gap:10px;
+    margin-bottom:6px;
+  }
+  .tag{
+    font-family:'IBM Plex Mono',monospace;
+    font-weight:600;
+    font-size:11px;
+    width:24px;height:24px;
+    border-radius:6px;
+    display:flex;align-items:center;justify-content:center;
+    flex:none;
+  }
+  .icon{width:24px;height:24px;flex:none;}
+  .box-title{
+    font-family:'Bitter',serif;
+    font-weight:600;
+    font-size:15.5px;
+    line-height:1.25;
+    margin:1px 0 0;
+  }
+  .box-caption{
+    font-size:11px;
+    font-style:italic;
+    color:var(--ink-soft);
+    margin:0 0 10px 34px;
+    line-height:1.4;
+  }
+  .box ul{
+    list-style:none;
+    margin:0;padding:0;
+    font-size:12.3px;
+    line-height:1.55;
+  }
+  .box ul li{
+    padding:4px 0 4px 14px;
+    position:relative;
+    border-top:1px dashed var(--line);
+  }
+  .box ul li:first-child{border-top:none;}
+  .box ul li::before{
+    content:"–";
+    position:absolute;left:0;top:4px;
+    color:var(--ink-soft);
+  }
+  .sub-label{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:10.5px;
+    text-transform:uppercase;
+    letter-spacing:.05em;
+    color:var(--ink-soft);
+    margin:10px 0 2px;
+  }
+  .sub-label:first-of-type{margin-top:8px;}
+  .htag{
+    display:inline-block;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:10px;
+    font-weight:600;
+    padding:1px 6px;
+    border-radius:9px;
+    margin-left:6px;
+    border:1px solid currentColor;
+    vertical-align:1px;
+  }
+  .vanity{
+    margin-top:10px;
+    padding-top:8px;
+    border-top:1px dashed var(--line);
+    font-size:11.5px;
+    color:var(--ink-soft);
+  }
+
+  /* color per category */
+  .coral .tag{background:var(--coral-bg);color:var(--coral);}
+  .coral .box-title{color:var(--coral);}
+  .coral .icon{color:var(--coral);}
+  .green .tag{background:var(--green-bg);color:var(--green);}
+  .green .box-title{color:var(--green);}
+  .green .icon{color:var(--green);}
+  .blue .tag{background:var(--blue-bg);color:var(--blue);}
+  .blue .box-title{color:var(--blue);}
+  .blue .icon{color:var(--blue);}
+  .gold .tag{background:var(--gold-bg);color:var(--gold);}
+  .gold .box-title{color:var(--gold);}
+  .gold .icon{color:var(--gold);}
+  .htag.coral-tag{color:var(--coral);}
+  .htag.gold-tag{color:var(--gold);}
+
+  /* center spotlight */
+  .spotlight{
+    grid-area:sp;
+    background:var(--paper);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:14px;
+  }
+  .stub{
+    border:1.5px dashed #c9a24a;
+    border-radius:10px;
+    padding:16px 20px;
+    text-align:center;
+    transform:rotate(-1.6deg);
+    background:#fffdf8;
+    width:100%;
+  }
+  .stub .k{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:10px;
+    letter-spacing:.1em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+    margin-bottom:10px;
+  }
+  .stock-row{
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+    align-items:flex-start;
+    margin:0 auto 10px;
+    width:max-content;
+  }
+  .stock-row div{
+    display:flex;align-items:center;gap:8px;
+    font-size:12px;
+  }
+  .stock-row .sw{width:10px;height:10px;border-radius:50%;flex:none;}
+  .stub .cats{
+    font-size:11px;
+    color:var(--ink-soft);
+    border-top:1px dashed #d8c48f;
+    padding-top:9px;
+    margin-top:4px;
+  }
+  .stub .cats b{color:var(--ink);}
+
+  footer{
+    padding:22px 44px 0;
+    font-size:11px;
+    color:var(--ink-soft);
+    display:flex;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:8px;
+  }
+  footer a{color:var(--ink-soft);}
+
+  @media (max-width:860px){
+    .canvas{grid-template-columns:1fr;grid-template-areas:
+      "p1" "s5" "r2" "u3" "sp" "u4" "h6" "rk7" "v8";}
+    header,.legend,.canvas,footer{padding-left:20px;padding-right:20px;}
+    .canvas{margin:22px 20px 0;}
+  }
+
+  @media print{
+    body{background:#fff;padding:0;}
+    .sheet{box-shadow:none;max-width:100%;}
+    @page{size:A4 landscape;margin:10mm;}
+  }
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <header>
+    <div class="eyebrow">Lean UX Canvas · V2 — Sanddy Almacén</div>
+    <h1>Catálogo digital &amp; atención al cliente 24/7</h1>
+    <p class="project-desc">Proyecto de Sandra Herrera para pasar de un negocio atendido 100% a mano por WhatsApp y Excel, a un catálogo web autoservicio que responde por ella incluso fuera de horario.</p>
+    <div class="meta-row">
+      <span class="chip">Fecha: <b>17-08-2026</b></span>
+      <span class="chip">Iteración: <b>1</b></span>
+      <span class="chip">Presupuesto: <b>$30.000 / mes</b></span>
+      <span class="chip">Rubro: <b>Belleza · Electrodomésticos</b></span>
+    </div>
+    <p class="howto"><b>Cómo leerlo:</b> fila superior = problema → solución → resultado de negocio · fila media = a quién servimos y qué gana · fila inferior = apuestas (hipótesis) → riesgos → cómo los validamos.</p>
+  </header>
+
+  <div class="legend">
+    <span><i class="dot" style="background:var(--coral)"></i>Fricciones actuales</span>
+    <span><i class="dot" style="background:var(--green)"></i>Acciones &amp; validación</span>
+    <span><i class="dot" style="background:var(--blue)"></i>Personas &amp; métricas</span>
+    <span><i class="dot" style="background:var(--gold)"></i>Apuestas del equipo</span>
+  </div>
+
+  <div class="canvas">
+
+    <!-- 1 PROBLEMAS -->
+    <div class="box coral" data-area="p1">
+      <div class="box-head">
+        <span class="tag">01</span>
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v9h-7l-3 3v-3H4z"/><line x1="12" y1="8" x2="12" y2="11.5"/><circle cx="12" cy="13.6" r="0.6" fill="currentColor" stroke="none"/></svg>
+        <h2 class="box-title">Problemas del negocio</h2>
+      </div>
+      <p class="box-caption">Qué está fallando hoy</p>
+      <ul>
+        <li>Atención y ventas 100% manuales por WhatsApp / redes</li>
+        <li>Sin atención fuera de horario → clientes que no esperan</li>
+        <li>No hay catálogo centralizado ni de autoservicio</li>
+        <li>Inventario en fotos + Excel, se desactualiza</li>
+        <li>Carga alta por preguntas repetitivas (precio, fotos, stock)</li>
+        <li>Difusión por estados y posts: dispersa y efímera</li>
+      </ul>
+    </div>
+
+    <!-- 5 SOLUCIONES -->
+    <div class="box green" data-area="s5">
+      <div class="box-head">
+        <span class="tag">05</span>
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="10" r="5"/><line x1="10" y1="16.5" x2="14" y2="16.5"/><line x1="10.5" y1="19" x2="13.5" y2="19"/></svg>
+        <h2 class="box-title">Soluciones propuestas</h2>
+      </div>
+      <p class="box-caption">Cómo resolvemos el problema</p>
+      <ul>
+        <li>Ficha de producto: fotos, características, precio, stock</li>
+        <li>Buscador + filtros (categoría, precio, disponibilidad)</li>
+        <li>Semáforo de stock: Disponible / Últimas / Agotado</li>
+        <li>Panel simple para Sandra, con importación desde Excel</li>
+        <li>FAQ + chatbot que responde 24/7</li>
+        <li>Botón "Consultar por WhatsApp" precargado</li>
+        <li>Enlace / imagen compartible por producto</li>
+        <li>Infraestructura de bajo costo (dominio + hosting)</li>
+      </ul>
+      <div class="sub-label">Alcance del MVP</div>
+      <ul>
+        <li>Fase 1 — catálogo público + panel + botón WhatsApp</li>
+        <li>Fase 2 — FAQ y chatbot automatizado</li>
+      </ul>
+    </div>
+
+    <!-- 2 RESULTADOS COMERCIALES -->
+    <div class="box blue" data-area="r2">
+      <div class="box-head">
+        <span class="tag">02</span>
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="7.2"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="0.9" fill="currentColor" stroke="none"/></svg>
+        <h2 class="box-title">Resultados comerciales</h2>
+      </div>
+      <p class="box-caption">Métricas accionables</p>
+      <ul>
+        <li>-70% consultas repetitivas de precio / stock</li>
+        <li>0 → 3+ interacciones/mes fuera de horario</li>
+        <li>↑ conversión consulta → venta</li>
+        <li>↓ tiempo promedio de atención por venta</li>
+        <li>100% productos con info actualizada</li>
+        <li>Costo de operación dentro de $30.000/mes</li>
+      </ul>
+      <div class="vanity">Evitar como meta: visitas o "me gusta" sin ventas concretadas.</div>
+    </div>
+
+    <!-- 3 USUARIOS -->
+    <div class="box blue" data-area="u3">
+      <div class="box-head">
+        <span class="tag">03</span>
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="9" r="3"/><circle cx="16.2" cy="10" r="2.5"/><path d="M3.5 20c0-4 2.5-6.6 5.5-6.6s5.5 2.6 5.5 6.6"/><path d="M13.6 20c.2-2.9 1.8-5.1 4-5.7"/></svg>
+        <h2 class="box-title">Usuarios &amp; clientes</h2>
+      </div>
+      <p class="box-caption">En quiénes nos enfocamos primero</p>
+      <ul>
+        <li><b>Sandra Herrera</b> — dueña/admin, poco tiempo, Excel básico, celular</li>
+        <li><b>Cliente comprador</b> — quiere precio y stock ya, desde el celular</li>
+        <li><b>Cliente explorador</b> — no quiere "molestar", ve todo por su cuenta</li>
+        <li><b>Por recomendación</b> — llega por link, sin contexto previo</li>
+      </ul>
+    </div>
+
+    <!-- 4 BENEFICIOS USUARIO -->
+    <div class="box gold" data-area="u4">
+      <div class="box-head">
+        <span class="tag">04</span>
+        <svg class="icon" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 19s-7-4.3-7-9.4C5 6.4 7.1 5 9.2 5c1.4 0 2.3.7 2.8 1.6C12.5 5.7 13.4 5 14.8 5 16.9 5 19 6.4 19 9.6 19 14.7 12 19 12 19z"/></svg>
+        <h2 class="box-title">Beneficios para el usuario</h2>
+      </div>
+      <p class="box-caption">Qué gana cada quién</p>
+      <div class="sub-label">Para el cliente</div>
+      <ul>
+        <li>Consultar a cualquier hora sin esperar respuesta</li>
+        <li>Explorar y comparar el catálogo con libertad</li>
+        <li>Decidir más rápido, con información clara</li>
+      </ul>
+      <div class="sub-label">Para Sandra</div>
+      <ul>
+        <li>Menos tiempo repitiendo lo mismo, más tiempo cerrando</li>
+        <li>Inventario ordenado y consultable en un solo lugar</li>
+        <li>Presencia profesional 24/7, sin perder ventas de noche</li>
+      </ul>
+    </div>
+
+    <!-- 6 HIPÓTESIS -->
+    <div class="box gold" data-area="h6">
+      <div class="box-head">
+        <span class="tag">06</span>
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3h4M10 3v6l-5.2 8.3A2 2 0 0 0 6.5 20.5h11a2 2 0 0 0 1.7-3.2L14 9V3"/><line x1="9" y1="13.5" x2="15" y2="13.5"/></svg>
+        <h2 class="box-title">Hipótesis</h2>
+      </div>
+      <p class="box-caption">Creemos que… se logrará si… obtiene… con…</p>
+      <ul>
+        <li><b>H1</b> Catálogo 24/7 → -70% consultas repetitivas</li>
+        <li><b>H2</b> FAQ + chatbot → cero ventas perdidas fuera de horario</li>
+        <li><b>H3</b> Panel simple → inventario al día, &lt;5 min/producto</li>
+        <li><b>H4</b> Botón WhatsApp precargado → más conversión</li>
+        <li><b>H5</b> Buscador y filtros → el explorador compra más</li>
+      </ul>
+    </div>
+
+    <!-- 7 RIESGOS -->
+    <div class="box coral" data-area="rk7">
+      <div class="box-head">
+        <span class="tag">07</span>
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4.2 21 20H3z"/><line x1="12" y1="10" x2="12" y2="14.3"/><circle cx="12" cy="16.8" r="0.6" fill="currentColor" stroke="none"/></svg>
+        <h2 class="box-title">Riesgos identificados</h2>
+      </div>
+      <p class="box-caption">Supuestos que podrían hacernos fallar</p>
+      <ul>
+        <li>Sandra no actualiza el catálogo por tiempo o dificultad <span class="htag coral-tag">H3</span></li>
+        <li>Clientes siguen prefiriendo preguntar por WhatsApp <span class="htag coral-tag">H1</span></li>
+        <li>Poco tráfico si no se difunde en redes <span class="htag coral-tag">H5</span></li>
+        <li>Volumen bajo (~7 consultas/mes) no justifica invertir <span class="htag coral-tag">H1</span></li>
+        <li>Costo real supera los $30.000/mes</li>
+        <li>Fotos/descripciones flojas restan confianza <span class="htag coral-tag">H5</span></li>
+        <li>Chatbot responde mal y genera desconfianza <span class="htag coral-tag">H2</span></li>
+        <li>Panel con curva de aprendizaje alta <span class="htag coral-tag">H3</span></li>
+      </ul>
+    </div>
+
+    <!-- 8 VALIDACIÓN -->
+    <div class="box green" data-area="v8">
+      <div class="box-head">
+        <span class="tag">08</span>
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="4" width="14" height="17" rx="2"/><line x1="8" y1="9" x2="16" y2="9"/><polyline points="8,13.3 10,15.3 16,10.5"/><line x1="8" y1="18" x2="13" y2="18"/></svg>
+        <h2 class="box-title">Validación de riesgos</h2>
+      </div>
+      <p class="box-caption">Experimentos para aprender rápido</p>
+      <ul>
+        <li>Test de usabilidad, 5 clientes: hallar precio en 15 min <span class="htag gold-tag">H1 H5</span></li>
+        <li>Sandra publica 10 productos, meta &lt;5 min c/u <span class="htag gold-tag">H3</span></li>
+        <li>MVP concierge 2–4 semanas: visitas, clics WhatsApp <span class="htag gold-tag">H1</span></li>
+        <li>Enlace en redes: comparar consultas antes/después <span class="htag gold-tag">H5</span></li>
+        <li>20 preguntas reales al chatbot, meta 80% correctas <span class="htag gold-tag">H2</span></li>
+        <li>Encuesta/entrevistas: "¿usarías un catálogo online?" <span class="htag gold-tag">H1 H2</span></li>
+        <li>Analítica semanal (vistas, buscador, abandono)</li>
+        <li>Cotizar dominio y hosting antes de desarrollar</li>
+        <li>Piloto con 20–30 productos antes del catálogo completo</li>
+      </ul>
+    </div>
+
+    <!-- CENTER SPOTLIGHT -->
+    <div class="spotlight">
+      <div class="stub">
+        <div class="k">Semáforo de stock</div>
+        <div class="stock-row">
+          <div><span class="sw" style="background:#3d7a52"></span>Disponible</div>
+          <div><span class="sw" style="background:#c99a2e"></span>Últimas unidades</div>
+          <div><span class="sw" style="background:#b5432a"></span>Agotado</div>
+        </div>
+        <div class="cats">Categorías: <b>Belleza</b> · <b>Electrodomésticos</b></div>
+      </div>
+    </div>
+
+  </div>
+
+  <footer>
+    <span>Sanddy Almacén — Sandra Herrera</span>
+    <span>Traducido y adaptado por Claude</span>
+  </footer>
+
+</div>
+</body>
+</html>

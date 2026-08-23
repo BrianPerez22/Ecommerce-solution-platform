@@ -1,0 +1,12 @@
+# Dependencias
+node_modules
+
+# Build
+dist
+
+# Variables de entorno
+.env
+
+# Uploads del backend (se conserva la carpeta, no su contenido)
+apps/Back/uploads/*
+!apps/Back/uploads/.gitkeep

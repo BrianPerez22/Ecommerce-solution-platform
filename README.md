@@ -56,4 +56,4 @@ cp .env.example .env
 
 ## Documentacion
 
-La documentacion funcional y tecnica del proyecto se encuentra en la carpeta `docs/`.
+La documentacion funcional y tecnica del proyecto se encuentra en la carpeta [`docs/`](./docs), organizada en `docs/apps` (guías técnicas de Front/Back), `docs/investigacion` (entrevistas, contexto, UX) y `docs/planificacion` (roadmap y fases de desarrollo).
