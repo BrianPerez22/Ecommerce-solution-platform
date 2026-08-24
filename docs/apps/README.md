@@ -3,7 +3,10 @@
 Catálogo, lista de interés y panel de administración de inventario para una tienda pequeña. El frontend vive en [`Front/`](../../apps/Front) y el backend en [`Back/`](../../apps/Back); los datos se guardan en PostgreSQL.
 
 📖 [Cómo funciona la aplicación](./como-funciona.md) — explicación técnica en lenguaje sencillo.
-🚀 [Guía paso a paso para correrla](./como-correr.md) — instrucciones detalladas, incluyendo solución de problemas comunes.
+🚀 [Guía paso a paso para correrla en local](./como-correr.md) — instrucciones detalladas, incluyendo solución de problemas comunes.
+☁️ [Guía paso a paso para desplegarla en Azure](./como-desplegar.md) — recursos reales de Azure, variables de producción y checklist final.
+🧭 [Bitácora técnica de la migración a Azure](./despliegue-azure.md) — qué cambió en el código, fase por fase, y por qué.
+🗺️ [Roadmap y arquitectura vigente](../planificacion/roadmap-proyecto.md) — estado del proyecto y decisiones de stack (incluye por qué se abandonó Cosmos DB/Azure Functions/Next.js).
 
 ## Cómo correr (resumen rápido)
 

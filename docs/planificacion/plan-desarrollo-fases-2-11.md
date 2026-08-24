@@ -1,5 +1,15 @@
 # Plan de Desarrollo — Sanddy Almacén (Fases 2 a 11)
 
+> ⚠️ **Documento histórico — no refleja el stack ni la infraestructura real del proyecto.**
+> Este plan proponía **AWS (DynamoDB + S3 + CloudFront)**. Esa propuesta fue abandonada antes
+> de escribir infraestructura: el backend que efectivamente se construyó usa **PostgreSQL
+> relacional vía Prisma**, no DynamoDB, y el despliegue se hizo sobre **Azure**, no AWS. Se
+> conserva este archivo solo como referencia histórica de las ideas de producto/backlog
+> (modelos de datos, flujo de WhatsApp, etc.), **no como fuente de verdad de la arquitectura
+> actual**. Para el estado y la pila real del proyecto, ver
+> [`roadmap-proyecto.md`](./roadmap-proyecto.md) y
+> [`plan-migracion-azure.md`](./plan-migracion-azure.md).
+
 > Continuación de la Fase 1 (ya completada: monorepo, TypeScript, ESLint, Prettier, Husky, estructura de carpetas).
 > Este documento corrige, completa y ordena el plan original para que sea ejecutable sin ambigüedades.
 

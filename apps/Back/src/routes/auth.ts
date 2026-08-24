@@ -3,6 +3,7 @@ import { prisma } from '../prisma.js'
 import { verifyPassword } from '../utils/password.js'
 import { HttpError } from '../utils/httpError.js'
 import { SESSION_COOKIE_NAME } from '../plugins/jwt.js'
+import { env } from '../env.js'
 
 const SESSION_MAX_AGE_SECONDS = 8 * 60 * 60 // 8 horas, igual que `sign: { expiresIn: '8h' }` en jwt.ts
 
@@ -23,8 +24,12 @@ export const authRoutes: FastifyPluginAsync = async (app) => {
     const token = app.jwt.sign({ sub: usuario.id, username: usuario.username })
     reply.setCookie(SESSION_COOKIE_NAME, token, {
       httpOnly: true,
-      sameSite: 'lax',
-      secure: false, // TODO: true cuando el backend corra detrás de HTTPS en producción
+      // 'none' es obligatorio cuando frontend y backend viven en dominios distintos
+      // (Static Web Apps + App Service, en producción) y el navegador exige que las
+      // cookies 'SameSite=None' sean 'Secure' — por eso van atadas a la misma bandera.
+      // En local (mismo "site": localhost:5173 y localhost:3001) 'lax' + no-secure basta.
+      sameSite: env.cookieSecure ? 'none' : 'lax',
+      secure: env.cookieSecure,
       path: '/',
       maxAge: SESSION_MAX_AGE_SECONDS,
     })
