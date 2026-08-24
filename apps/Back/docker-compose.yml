@@ -12,8 +12,24 @@ services:
     volumes:
       - sanddy_db_data:/var/lib/postgresql/data
 
+  # Emulador local de Azure Blob Storage. Opcional: solo se necesita si quieres
+  # probar STORAGE_DRIVER=azure en tu máquina antes de usar una cuenta real de Azure.
+  # No se levanta con `docker compose up` (usa el perfil "azure"); para levantarlo:
+  #   docker compose --profile azure up azurite
+  azurite:
+    image: mcr.microsoft.com/azure-storage/azurite
+    container_name: sanddy-azurite
+    profiles: ['azure']
+    restart: unless-stopped
+    command: 'azurite-blob --blobHost 0.0.0.0'
+    ports:
+      - '10000:10000'
+    volumes:
+      - sanddy_azurite_data:/data
+
 volumes:
   sanddy_db_data:
+  sanddy_azurite_data:
 
 # TODO(futuro): agregar aquí un servicio `api` que construya la imagen de Back/
 # (con su propio Dockerfile) una vez se quiera dockerizar también el backend.

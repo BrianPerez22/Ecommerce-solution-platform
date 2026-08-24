@@ -1,32 +1,30 @@
-import path from 'node:path'
-import { pipeline } from 'node:stream/promises'
-import { createWriteStream } from 'node:fs'
-import { randomUUID } from 'node:crypto'
 import type { FastifyPluginAsync } from 'fastify'
-import { env } from '../env.js'
 import { HttpError } from '../utils/httpError.js'
+import { saveUpload } from '../services/storage.js'
 
-// TODO: si se necesita más adelante generar miniaturas o garantizar compresión
-// server-side (el navegador ya comprime antes de subir), evaluar `sharp` aquí.
+// Lista blanca explícita en vez de "cualquier image/*": excluye a propósito
+// image/svg+xml, que es XML y puede llevar <script> embebido (XSS si el navegador
+// llega a abrir el blob directamente en vez de solo usarlo como <img src>).
+const ALLOWED_MIME_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp'])
 
 export const uploadRoutes: FastifyPluginAsync = async (app) => {
   app.post('/uploads', { onRequest: [app.requireAuth] }, async (request, reply) => {
     const file = await request.file()
     if (!file) throw new HttpError(400, 'No se recibió ningún archivo.')
-    if (!file.mimetype.startsWith('image/')) {
-      throw new HttpError(400, 'El archivo debe ser una imagen.')
+    if (!ALLOWED_MIME_TYPES.has(file.mimetype)) {
+      throw new HttpError(400, 'La imagen debe ser JPEG, PNG o WEBP.')
     }
 
-    const extension = path.extname(file.filename) || '.jpg'
-    const fileName = `${randomUUID()}${extension}`
-    const destination = path.resolve(process.cwd(), env.uploadsDir, fileName)
-
-    await pipeline(file.file, createWriteStream(destination))
+    const url = await saveUpload({
+      filename: file.filename,
+      mimetype: file.mimetype,
+      stream: file.file,
+    })
 
     if (file.file.truncated) {
       throw new HttpError(413, 'La imagen supera el tamaño máximo permitido.')
     }
 
-    return reply.code(201).send({ url: `/uploads/${fileName}` })
+    return reply.code(201).send({ url })
   })
 }
