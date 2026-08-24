@@ -62,12 +62,17 @@ export async function deleteCategoria(id: string): Promise<void> {
   await api<void>(`/categorias/${id}`, { method: 'DELETE' })
 }
 
-/** Sube una imagen ya comprimida al backend y devuelve su URL pública. */
+/**
+ * Sube una imagen ya comprimida al backend y devuelve su URL pública.
+ * El backend puede responder con una ruta relativa (`/uploads/x.jpg`, storage local)
+ * o con una URL absoluta (`https://...blob.core.windows.net/...`, Azure Blob Storage).
+ * Solo anteponemos API_URL en el primer caso; nunca sabemos ni nos importa cuál es.
+ */
 export async function uploadImagen(blob: Blob): Promise<string> {
   const formData = new FormData()
   formData.append('file', blob, 'imagen.jpg')
   const { url } = await api<{ url: string }>('/uploads', { method: 'POST', body: formData })
-  return `${API_URL}${url}`
+  return url.startsWith('http') ? url : `${API_URL}${url}`
 }
 
 export async function getPedidos(): Promise<Pedido[]> {

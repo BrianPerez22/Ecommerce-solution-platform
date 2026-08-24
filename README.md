@@ -4,56 +4,58 @@ Plataforma de catalogo e inventario para Sanddy Almacen. Permite al administrado
 
 ## Estructura del proyecto
 
+Monorepo simple con dos aplicaciones independientes, cada una con su propio `package.json`:
+
 ```
-sanddy-almacen/
+Ecommerce-solution-platform/
 ├── apps/
-│   └── web/            # Aplicacion web (admin + catalogo publico)
-├── src/
-│   ├── admin/           # Modulo de administracion de productos e inventario
-│   ├── catalog/         # Modulo de catalogo publico para clientes
-│   ├── components/      # Componentes UI compartidos
-│   ├── services/        # Integraciones (AWS, API, etc.)
-│   ├── hooks/            # Hooks reutilizables
-│   ├── models/           # Modelos y esquemas de datos
-│   ├── utils/            # Utilidades generales
-│   └── types/            # Tipos compartidos de TypeScript
-├── public/               # Archivos estaticos
-├── docs/                 # Documentacion del proyecto
-├── tests/                # Pruebas
-├── package.json
-├── tsconfig.json
+│   ├── Back/             # Fastify + Prisma + PostgreSQL (API, puerto 3001)
+│   │   ├── src/
+│   │   ├── prisma/
+│   │   └── uploads/       # imágenes locales (STORAGE_DRIVER=local)
+│   └── Front/            # Vite + React + TypeScript (SPA, puerto 5173)
+│       └── src/
+├── docs/
+│   ├── apps/              # cómo funciona, cómo correr, cómo desplegar a Azure
+│   ├── investigacion/     # entrevistas, contexto, UX
+│   └── planificacion/     # roadmap y decisiones de arquitectura
+├── .github/workflows/     # CI/CD a Azure (backend y frontend)
 └── README.md
 ```
+
+> Nota: si ves referencias a `sanddy-almacen`, `apps/web` o AWS/DynamoDB en documentos de
+> `docs/planificacion/`, son propuestas anteriores que **no** corresponden a esta estructura.
+> Ver [`docs/planificacion/roadmap-proyecto.md`](./docs/planificacion/roadmap-proyecto.md)
+> para el historial de por qué se abandonaron.
 
 ## Requisitos previos
 
 - Node.js 20 o superior
-- npm 10 o superior
+- Docker Desktop (para PostgreSQL en local)
 
-## Instalacion
+## Cómo correr el proyecto
 
-```bash
-npm install
-```
-
-## Scripts disponibles
-
-| Script                 | Descripcion                                   |
-| ---------------------- | --------------------------------------------- |
-| `npm run lint`         | Revisa el codigo con ESLint                   |
-| `npm run lint:fix`     | Corrige automaticamente lo que se pueda       |
-| `npm run format`       | Formatea el codigo con Prettier               |
-| `npm run format:check` | Verifica el formato sin modificar archivos    |
-| `npm run typecheck`    | Verifica los tipos de TypeScript sin compilar |
-
-## Variables de entorno
-
-Copiar `.env.example` a `.env` y completar los valores correspondientes.
+Ver la guía completa en [`docs/apps/como-correr.md`](./docs/apps/como-correr.md). Resumen:
 
 ```bash
-cp .env.example .env
+# 1. Base de datos
+cd apps/Back && docker compose up -d db
+
+# 2. Backend
+cp .env.example .env && npm install && npm run prisma:migrate && npm run prisma:seed
+npm run dev   # http://localhost:3001
+
+# 3. Frontend (otra terminal)
+cd apps/Front && cp .env.example .env && npm install
+npm run dev   # http://localhost:5173, panel en /admin
 ```
+
+## Cómo desplegar a producción (Azure)
+
+Ver [`docs/apps/como-desplegar.md`](./docs/apps/como-desplegar.md) para la guía paso a paso, o
+[`docs/apps/despliegue-azure.md`](./docs/apps/despliegue-azure.md) para el detalle técnico de
+qué cambió en el código para soportar Azure.
 
 ## Documentacion
 
-La documentacion funcional y tecnica del proyecto se encuentra en la carpeta [`docs/`](./docs), organizada en `docs/apps` (guías técnicas de Front/Back), `docs/investigacion` (entrevistas, contexto, UX) y `docs/planificacion` (roadmap y fases de desarrollo).
+La documentacion funcional y tecnica del proyecto se encuentra en la carpeta [`docs/`](./docs), organizada en `docs/apps` (guías técnicas de Front/Back y despliegue), `docs/investigacion` (entrevistas, contexto, UX) y `docs/planificacion` (roadmap y decisiones de arquitectura).

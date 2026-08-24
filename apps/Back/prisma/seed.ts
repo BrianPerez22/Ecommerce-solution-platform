@@ -3,6 +3,11 @@ import { hashPassword } from '../src/utils/password.js'
 
 const prisma = new PrismaClient()
 
+// En local (o si se pide explícitamente) sembramos categorías/productos/pedido de ejemplo.
+// En producción normalmente NO quieres esto — solo el usuario admin — así que se puede
+// desactivar con SEED_SAMPLE_DATA=false al correr el seed contra Azure.
+const seedSampleData = process.env.SEED_SAMPLE_DATA !== 'false'
+
 type CategoriaSeed = { id: string; nombre: string; slug: string; orden: number }
 type ProductoSeed = {
   id: string
@@ -160,37 +165,43 @@ const productos: ProductoSeed[] = [
 ]
 
 async function main() {
-  for (const categoria of categorias) {
-    await prisma.categoria.upsert({
-      where: { id: categoria.id },
-      create: categoria,
-      update: categoria,
-    })
-  }
+  if (seedSampleData) {
+    for (const categoria of categorias) {
+      await prisma.categoria.upsert({
+        where: { id: categoria.id },
+        create: categoria,
+        update: categoria,
+      })
+    }
 
-  for (const producto of productos) {
-    await prisma.producto.upsert({
-      where: { id: producto.id },
-      create: producto,
-      update: producto,
-    })
-  }
+    for (const producto of productos) {
+      await prisma.producto.upsert({
+        where: { id: producto.id },
+        create: producto,
+        update: producto,
+      })
+    }
 
-  const yaHayPedidos = (await prisma.pedido.count()) > 0
-  if (!yaHayPedidos) {
-    await prisma.pedido.create({
-      data: {
-        codigo: 'SA-DEMO',
-        clienteNombre: 'Cliente de ejemplo',
-        total: 45900 + 2 * 28900,
-        lineas: {
-          create: [
-            { productoId: 'p1', productoNombre: 'Base líquida Velvet', cantidad: 1, precioUnitario: 45900 },
-            { productoId: 'p2', productoNombre: 'Rubor compacto Rosé', cantidad: 2, precioUnitario: 28900 },
-          ],
+    const yaHayPedidos = (await prisma.pedido.count()) > 0
+    if (!yaHayPedidos) {
+      await prisma.pedido.create({
+        data: {
+          codigo: 'SA-DEMO',
+          clienteNombre: 'Cliente de ejemplo',
+          total: 45900 + 2 * 28900,
+          lineas: {
+            create: [
+              { productoId: 'p1', productoNombre: 'Base líquida Velvet', cantidad: 1, precioUnitario: 45900 },
+              { productoId: 'p2', productoNombre: 'Rubor compacto Rosé', cantidad: 2, precioUnitario: 28900 },
+            ],
+          },
         },
-      },
-    })
+      })
+    }
+
+    console.log(`Sembrados: ${categorias.length} categorías, ${productos.length} productos.`)
+  } else {
+    console.log('SEED_SAMPLE_DATA=false: se omiten categorías, productos y pedido de ejemplo.')
   }
 
   const adminUsername = process.env.ADMIN_INITIAL_USERNAME || 'sanddy'
@@ -203,8 +214,6 @@ async function main() {
   } else {
     console.log(`Usuario admin '${adminUsername}' ya existe, no se modifica su contraseña.`)
   }
-
-  console.log(`Sembrados: ${categorias.length} categorías, ${productos.length} productos.`)
 }
 
 main()
