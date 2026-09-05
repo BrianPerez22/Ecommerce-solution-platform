@@ -4,6 +4,7 @@ Catálogo, lista de interés y panel de administración de inventario para una t
 
 📖 [Cómo funciona la aplicación](./como-funciona.md) — explicación técnica en lenguaje sencillo.
 🚀 [Guía paso a paso para correrla](./como-correr.md) — instrucciones detalladas, incluyendo solución de problemas comunes.
+🌐 [Cómo publicarla gratis](./despliegue.md) — desplegar el monolito en Render con la base en Neon, paso a paso.
 
 ## Cómo correr (resumen rápido)
 

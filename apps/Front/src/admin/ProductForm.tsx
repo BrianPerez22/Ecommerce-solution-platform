@@ -1,6 +1,6 @@
 import { useState, type ChangeEvent } from 'react'
 import type { Categoria, Producto } from '../models/seed'
-import { uploadImagen } from '../services/store'
+import { resolveImagenUrl, uploadImagen } from '../services/store'
 import { compactImageToBlob } from './image'
 
 /** Formulario completo para crear o editar un producto, incluyendo sus imágenes. */
@@ -140,7 +140,7 @@ export function ProductForm({
           <div className="image-manager full">
             {draft.imagenes.map((src, index) => (
               <div key={src + index}>
-                <img src={src} alt="" />
+                <img src={resolveImagenUrl(src)} alt="" />
                 <button
                   onClick={() =>
                     setField(

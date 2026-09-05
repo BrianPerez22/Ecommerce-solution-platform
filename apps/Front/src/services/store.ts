@@ -62,12 +62,23 @@ export async function deleteCategoria(id: string): Promise<void> {
   await api<void>(`/categorias/${id}`, { method: 'DELETE' })
 }
 
-/** Sube una imagen ya comprimida al backend y devuelve su URL pública. */
+/** Sube una imagen ya comprimida al backend y devuelve su ruta (`/imagenes/<id>`). */
 export async function uploadImagen(blob: Blob): Promise<string> {
   const formData = new FormData()
   formData.append('file', blob, 'imagen.jpg')
-  const { url } = await api<{ url: string }>('/uploads', { method: 'POST', body: formData })
-  return `${API_URL}${url}`
+  const { url } = await api<{ url: string }>('/imagenes', { method: 'POST', body: formData })
+  return url
+}
+
+/**
+ * Resuelve la URL para un `<img src>`. Las imágenes guardadas en la base de datos se
+ * persisten como ruta relativa (`/imagenes/<id>`) para que no dependan del host del
+ * backend; las externas (Unsplash, por ejemplo) se guardan absolutas y van tal cual.
+ */
+export function resolveImagenUrl(src?: string): string | undefined {
+  if (!src) return undefined
+  if (/^(https?:|data:|blob:)/.test(src)) return src
+  return `${API_URL}${src}`
 }
 
 export async function getPedidos(): Promise<Pedido[]> {

@@ -9,17 +9,26 @@ import { authRoutes } from './routes/auth.js'
 import { categoriaRoutes } from './routes/categorias.js'
 import { productoRoutes } from './routes/productos.js'
 import { pedidoRoutes } from './routes/pedidos.js'
-import { uploadRoutes } from './routes/uploads.js'
+import { imagenRoutes } from './routes/imagenes.js'
+import { env } from './env.js'
 import { HttpError } from './utils/httpError.js'
 
+/**
+ * Toda la API cuelga de /api para dejar libre la raíz, que en producción sirve el build
+ * del front desde este mismo servidor. El front la llama con `VITE_API_URL=/api`, así
+ * que la misma ruta relativa vale en desarrollo (proxy de Vite) y en producción.
+ */
+const API_PREFIX = '/api'
+
 export async function buildApp() {
-  const app = Fastify({ logger: true })
+  // trustProxy en producción: en Render el TLS lo termina el proxy, y sin esto Fastify
+  // registraría la IP del proxy y creería que todas las peticiones llegan por HTTP.
+  const app = Fastify({ logger: true, trustProxy: env.isProduction })
 
   await registerCors(app)
   await registerCookie(app)
   await registerJwt(app)
   await registerMultipart(app)
-  await registerStatic(app)
 
   app.setErrorHandler((error: FastifyError | HttpError, _request, reply) => {
     if (error instanceof HttpError) {
@@ -34,12 +43,16 @@ export async function buildApp() {
     return reply.code(500).send({ message: 'Error interno del servidor.' })
   })
 
-  await app.register(healthRoutes)
-  await app.register(authRoutes)
-  await app.register(categoriaRoutes)
-  await app.register(productoRoutes)
-  await app.register(pedidoRoutes)
-  await app.register(uploadRoutes)
+  await app.register(healthRoutes, { prefix: API_PREFIX })
+  await app.register(authRoutes, { prefix: API_PREFIX })
+  await app.register(categoriaRoutes, { prefix: API_PREFIX })
+  await app.register(productoRoutes, { prefix: API_PREFIX })
+  await app.register(pedidoRoutes, { prefix: API_PREFIX })
+  await app.register(imagenRoutes, { prefix: API_PREFIX })
+
+  // Al final: instala el notFound que devuelve el index.html del SPA, y solo debe
+  // atrapar lo que ninguna ruta de la API reclamó antes.
+  await registerStatic(app)
 
   return app
 }

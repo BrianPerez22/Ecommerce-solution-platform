@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import QRCode from 'qrcode'
-import { crearPedido, type CartLine } from '../services/store'
+import { crearPedido, resolveImagenUrl, type CartLine } from '../services/store'
 import type { Pedido } from '../models/pedido'
 import type { Producto } from '../models/seed'
 import type { Page } from '../components/Header'
@@ -138,7 +138,7 @@ export function Cart({
           <div className="cart-lines">
             {lines.map(({ line, producto }) => (
               <article key={producto.id}>
-                <img src={producto.imagenes[0]} alt="" />
+                <img src={resolveImagenUrl(producto.imagenes[0])} alt="" />
                 <div>
                   <h2>{producto.nombre}</h2>
                   <p className="price">{formatMoney(producto.precio)}</p>

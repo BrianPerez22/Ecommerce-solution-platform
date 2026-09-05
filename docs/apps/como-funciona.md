@@ -16,13 +16,12 @@ Navegador (cliente o admin)
   Back/  (Fastify, API)
         │  SQL (Prisma)
         ▼
-  Postgres (Docker)   +   Back/uploads/ (imágenes subidas)
+  Postgres (Docker)  — datos y bytes de las imágenes
 ```
 
 - **`Front/`** es lo que ve el usuario en el navegador: el catálogo, el carrito y el panel de administración. No guarda datos "de verdad" — le pregunta todo al backend.
 - **`Back/`** es la API: recibe peticiones HTTP, valida, habla con la base de datos y responde JSON. No sabe nada de React ni de HTML.
-- **Postgres** guarda los datos permanentes: productos, categorías, pedidos y el usuario admin.
-- **`Back/uploads/`** es una carpeta normal en el disco donde quedan los archivos de imágenes que se suben desde el panel.
+- **Postgres** guarda los datos permanentes: productos, categorías, pedidos, el usuario admin y también **los bytes de las imágenes** que se suben desde el panel — no queda ningún archivo en el disco.
 
 Ninguna de las dos partes puede funcionar sola de forma útil: el frontend sin el backend no tiene productos que mostrar, y el backend sin frontend es solo una API que se probaría con `curl`.
 
@@ -56,11 +55,10 @@ Construido con **Fastify** (un framework de servidor HTTP para Node.js, parecido
 | Carpeta | Qué contiene |
 |---|---|
 | `src/app.ts` | Arma el servidor: qué plugins usa (CORS, cookies, JWT, subida de archivos) y qué rutas existen. |
-| `src/routes/` | Un archivo por "tema": `productos.ts`, `categorias.ts`, `pedidos.ts`, `uploads.ts`, `auth.ts`. Cada uno define sus endpoints (`GET`, `POST`, etc.). |
+| `src/routes/` | Un archivo por "tema": `productos.ts`, `categorias.ts`, `pedidos.ts`, `imagenes.ts`, `auth.ts`. Cada uno define sus endpoints (`GET`, `POST`, etc.). |
 | `src/plugins/` | Configuración de piezas reutilizables: CORS, cookies, JWT. |
 | `prisma/schema.prisma` | La definición de las tablas de la base de datos (cómo es un `Producto`, una `Categoria`, etc.). |
 | `prisma/seed.ts` | Un script que llena la base de datos con datos de ejemplo (12 productos, 3 categorías, 1 usuario admin) la primera vez. |
-| `uploads/` | Las imágenes que suben los administradores, guardadas como archivos normales. |
 
 ### Qué endpoints existen
 
@@ -70,17 +68,19 @@ Construido con **Fastify** (un framework de servidor HTTP para Node.js, parecido
 | `POST /pedidos` | El cliente confirma su compra desde el carrito. | No |
 | `POST/PUT/DELETE /productos`, `/categorias` | Crear, editar o borrar desde el panel. | Sí |
 | `GET /pedidos` | El historial de pedidos que ve el admin. | Sí |
-| `POST /uploads` | Subir una imagen de producto. | Sí |
+| `POST /imagenes` | Subir una imagen de producto (se guarda en la base de datos). | Sí |
+| `GET /imagenes/:id` | Devolver los bytes de una imagen para mostrarla. | No |
 | `POST /auth/login`, `/auth/logout`, `GET /auth/me` | Iniciar sesión, cerrar sesión, saber quién está logueado. | — |
 
 La idea: **el catálogo es público** (cualquiera puede mirarlo y comprar), pero **editar el inventario requiere ser Sanddy**.
 
 ## Cómo se guardan los datos
 
-Todo vive en 4 tablas de Postgres (definidas en `prisma/schema.prisma`):
+Todo vive en 6 tablas de Postgres (definidas en `prisma/schema.prisma`):
 
 - **`Categoria`**: nombre, slug, orden en el que aparece.
 - **`Producto`**: nombre, precio, stock, descripción, imágenes (una lista de URLs), a qué categoría pertenece.
+- **`Imagen`**: los bytes de una foto subida desde el panel, con su tipo (JPEG, PNG...) y su tamaño. Es lo que devuelve `GET /imagenes/:id`.
 - **`Pedido`**: el código del pedido (ej. `SA-4AAI`), nombre del cliente (opcional), total.
 - **`LineaPedido`**: cada producto dentro de un pedido, con la cantidad y el precio que tenía *en ese momento* (así el historial no cambia si después subes el precio del producto).
 - **`Usuario`**: el o los admins que pueden entrar al panel (usuario + contraseña encriptada).
@@ -100,10 +100,10 @@ Todo vive en 4 tablas de Postgres (definidas en `prisma/schema.prisma`):
 
 1. En el panel, Sanddy llena el formulario y elige una imagen de su computador.
 2. El navegador comprime la imagen (la hace más chica) *antes* de subirla, para no gastar espacio de más.
-3. El frontend la sube con `POST /uploads` → el backend la guarda como un archivo en `Back/uploads/` y devuelve una URL como `/uploads/abc123.jpg`.
-4. El frontend guarda esa URL dentro del producto y lo envía con `POST /productos` (o `PUT` si ya existía).
+3. El frontend la sube con `POST /imagenes` → el backend guarda los bytes en la tabla `Imagen` de Postgres y devuelve una ruta como `/imagenes/abc123`.
+4. El frontend guarda esa ruta dentro del producto y lo envía con `POST /productos` (o `PUT` si ya existía).
 5. El backend valida los datos (que la categoría exista, que el precio sea un número, etc.) y lo guarda en Postgres.
-6. La próxima vez que cualquier visitante abre el catálogo, `GET /productos` trae ese producto nuevo con su foto.
+6. La próxima vez que cualquier visitante abre el catálogo, `GET /productos` trae ese producto nuevo con la ruta de su foto, y cada `<img>` le pide los bytes al backend con `GET /imagenes/abc123`.
 
 **Ejemplo: un cliente hace un pedido**
 

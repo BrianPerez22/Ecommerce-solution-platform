@@ -3,6 +3,7 @@ import { prisma } from '../prisma.js'
 import { verifyPassword } from '../utils/password.js'
 import { HttpError } from '../utils/httpError.js'
 import { SESSION_COOKIE_NAME } from '../plugins/jwt.js'
+import { env } from '../env.js'
 
 const SESSION_MAX_AGE_SECONDS = 8 * 60 * 60 // 8 horas, igual que `sign: { expiresIn: '8h' }` en jwt.ts
 
@@ -24,7 +25,9 @@ export const authRoutes: FastifyPluginAsync = async (app) => {
     reply.setCookie(SESSION_COOKIE_NAME, token, {
       httpOnly: true,
       sameSite: 'lax',
-      secure: false, // TODO: true cuando el backend corra detrás de HTTPS en producción
+      // Solo en producción, donde hay HTTPS: en local el navegador descartaría una
+      // cookie marcada como Secure servida por http:// y no se podría iniciar sesión.
+      secure: env.cookieSecure,
       path: '/',
       maxAge: SESSION_MAX_AGE_SECONDS,
     })

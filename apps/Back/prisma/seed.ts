@@ -22,6 +22,9 @@ const categorias: CategoriaSeed[] = [
   { id: 'hogar', nombre: 'Electrodomésticos', slug: 'hogar', orden: 3 },
 ]
 
+// El seed usa imágenes externas de Unsplash a propósito: no obliga a meter binarios en
+// el repo y ejercita el caso mixto — `Producto.imagenes` admite tanto `/imagenes/<id>`
+// (bytes en la base) como URLs externas. Las propias solo entran por `POST /imagenes`.
 const img = (id: string) => `https://images.unsplash.com/${id}?auto=format&fit=crop&w=900&q=80`
 
 const productos: ProductoSeed[] = [

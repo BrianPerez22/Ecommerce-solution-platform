@@ -1,4 +1,5 @@
 import type { Categoria, Producto } from '../models/seed'
+import { resolveImagenUrl } from '../services/store'
 
 type EditableField = 'nombre' | 'precio' | 'stock'
 
@@ -69,7 +70,7 @@ export function SheetRow({
       </td>
       <td>
         <button className="image-cell" onClick={onEdit}>
-          <img src={product.imagenes[0]} alt="" />
+          <img src={resolveImagenUrl(product.imagenes[0])} alt="" />
           Editar
         </button>
       </td>

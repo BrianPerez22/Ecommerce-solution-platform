@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import type { Categoria, Producto } from '../models/seed'
 import { formatMoney, getAvailabilityLabel } from '../utils/format'
+import { resolveImagenUrl } from '../services/store'
 
 /** Ventana emergente con el detalle completo de un producto y sus imágenes. */
 export function ProductDialog({
@@ -32,14 +33,14 @@ export function ProductDialog({
         </button>
 
         <div className="detail-image">
-          <img src={product.imagenes[activeImage]} alt={product.nombre} />
+          <img src={resolveImagenUrl(product.imagenes[activeImage])} alt={product.nombre} />
         </div>
 
         {product.imagenes.length > 1 && (
           <div className="thumbs">
             {product.imagenes.map((imagen, index) => (
               <button key={imagen} onClick={() => setActiveImage(index)}>
-                <img src={imagen} alt="" />
+                <img src={resolveImagenUrl(imagen)} alt="" />
               </button>
             ))}
           </div>

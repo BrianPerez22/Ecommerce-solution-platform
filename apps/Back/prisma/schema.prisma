@@ -36,6 +36,21 @@ model Producto {
   @@map("productos")
 }
 
+/// Bytes de una imagen subida desde el panel. Se guardan aquí (BYTEA) en vez de en
+/// disco para que Postgres sea el único lugar donde vive el catálogo.
+/// No hay relación con Producto: la subida ocurre antes de guardar el producto, y
+/// `Producto.imagenes` referencia estas filas por URL (`/imagenes/<id>`), del mismo
+/// modo que puede referenciar una URL externa.
+model Imagen {
+  id        String   @id @default(cuid())
+  mimeType  String
+  tamano    Int
+  datos     Bytes
+  createdAt DateTime @default(now())
+
+  @@map("imagenes")
+}
+
 /// Snapshot inmutable de un pedido confirmado por el cliente vía WhatsApp.
 model Pedido {
   id            String        @id @default(cuid())

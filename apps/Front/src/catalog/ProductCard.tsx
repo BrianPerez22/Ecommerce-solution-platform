@@ -1,4 +1,5 @@
 import type { Producto } from '../models/seed'
+import { resolveImagenUrl } from '../services/store'
 import { formatMoney, getAvailabilityLabel } from '../utils/format'
 
 /** Convierte "Últimas unidades" en la clase CSS "ultimas-unidades", por ejemplo. */
@@ -21,7 +22,7 @@ export function ProductCard({
   return (
     <article className={'product-card ' + (unavailable ? 'sold' : '')}>
       <button className="card-image" onClick={() => onOpen(producto)}>
-        <img src={producto.imagenes[0]} alt={producto.nombre} />
+        <img src={resolveImagenUrl(producto.imagenes[0])} alt={producto.nombre} />
         <span className={'availability ' + availabilityClass(producto)}>
           {getAvailabilityLabel(producto)}
         </span>
