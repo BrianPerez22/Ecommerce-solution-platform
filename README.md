@@ -2,6 +2,18 @@
 
 Plataforma de catalogo e inventario para Sanddy Almacen. Permite al administrador gestionar productos y categorias mediante un panel tipo hoja de calculo, y permite a los clientes explorar el inventario publico y armar un carrito de interes que se convierte en un codigo QR, sin pasarela de pago.
 
+Proyecto final de la asignatura **Tendencias Tecnologicas** — Universidad EAN.
+
+## Equipo
+
+| Integrante | Rol | Responsabilidad |
+| ---------- | --- | --------------- |
+| **Sergio Alejandro Rey Mateus** | Documentacion · Cliente · Problema | Entrevista y relacion con la clienta, definicion del problema, Lean UX Canvas, mapa de empatia, encuesta de validacion, stakeholders y objetivos SMART |
+| **Brian David Pérez Herrera** | Desarrollador · Nube | Estructura inicial del monorepo y tooling, plan de fases, roadmap tecnico, abstraccion de almacenamiento y migracion a la nube |
+| **Stiven Daniel Melo Guayazán** | Desarrollador · Despliegue | Frontend y backend (`apps/Front`, `apps/Back`), modelo de datos y migraciones, autenticacion, imagen Docker y publicacion |
+
+📓 **[Diario de Trabajo del equipo](./docs/planificacion/diario-de-trabajo.md)** — bitacora del proyecto con las entradas diarias, el reparto de responsabilidades individuales y grupales, la trazabilidad completa de commits y ramas, y la reflexion critica de cada fase (Definir → Idear → Validar).
+
 ## Estructura del proyecto
 
 ```
@@ -57,3 +69,11 @@ cp .env.example .env
 ## Documentacion
 
 La documentacion funcional y tecnica del proyecto se encuentra en la carpeta [`docs/`](./docs), organizada en `docs/apps` (guías técnicas de Front/Back), `docs/investigacion` (entrevistas, contexto, UX) y `docs/planificacion` (roadmap y fases de desarrollo).
+
+| Documento | Contenido |
+| --------- | --------- |
+| [Diario de Trabajo](./docs/planificacion/diario-de-trabajo.md) | Bitacora del equipo: entradas diarias, responsabilidades de cada integrante, trazabilidad de commits y reflexion critica |
+| [Objetivos SMART](./docs/planificacion/objetivos-smart.md) | Problema, causas y efectos, requerimientos, objetivo general y objetivos especificos |
+| [Como funciona](./docs/apps/como-funciona.md) | Explicacion tecnica en lenguaje sencillo de cada pieza del sistema |
+| [Como correr](./docs/apps/como-correr.md) | Guia paso a paso para levantar el proyecto en local |
+| [Despliegue](./docs/apps/despliegue.md) | Publicacion del monolito en Render con la base de datos en Neon |
