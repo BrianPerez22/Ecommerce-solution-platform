@@ -1,8 +1,20 @@
 # Sanddy Almacen
 
+🌐 **Sitio en produccion: [https://sanddy-almacen.onrender.com/](https://sanddy-almacen.onrender.com/)**
+
 Plataforma de catalogo e inventario para Sanddy Almacen. Permite al administrador gestionar productos y categorias mediante un panel tipo hoja de calculo, y permite a los clientes explorar el inventario publico y armar un carrito de interes que se convierte en un codigo QR, sin pasarela de pago.
 
 Proyecto final de la asignatura **Tendencias Tecnologicas** — Universidad EAN.
+
+## Enlaces del proyecto
+
+| Enlace | Que es |
+| ------ | ------ |
+| [Catalogo publico](https://sanddy-almacen.onrender.com/) | La tienda, sin login: navegar productos y armar la lista de interes |
+| [Panel de administracion](https://sanddy-almacen.onrender.com/admin) | Gestion de inventario, categorias y pedidos (requiere usuario y contrasena) |
+| [Estado del servicio](https://sanddy-almacen.onrender.com/api/health) | Responde `{"status":"ok"}` si la aplicacion y la base de datos estan arriba |
+
+> ⏱️ El servicio corre en el plan gratuito de Render: se apaga tras 15 minutos sin visitas y la primera peticion despues de ese lapso tarda cerca de un minuto en responder. No esta caido, esta despertando.
 
 ## Equipo
 

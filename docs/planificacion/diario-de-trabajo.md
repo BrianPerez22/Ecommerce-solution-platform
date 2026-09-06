@@ -13,6 +13,7 @@
 | **Proyecto** | **Plataforma Sanddy Almacén** — catálogo digital de autoservicio + panel de administración de inventario |
 | **Cliente real** | Sandra Herrera — Sanddy Almacén (belleza y pequeños electrodomésticos) |
 | **Repositorio** | `Ecommerce-solution-platform` — ramas `main`, `documentacion`, `feature/migracion-azure` |
+| **Sitio en producción** | **https://sanddy-almacen.onrender.com/** — catálogo público · `/admin` panel de administración · `/api/health` estado del servicio |
 | **Fecha de elaboración de este diario** | 06 de septiembre de 2026 |
 | **Periodo cubierto** | 16 de agosto de 2026 — 06 de septiembre de 2026 |
 
@@ -37,6 +38,7 @@
    - [Entrada 07 · 01-09-2026 · Formulación de objetivos SMART](#entrada-07--01-09-2026--formulación-de-objetivos-smart)
    - [Entrada 08 · 04-09 y 05-09-2026 · Reorientación del despliegue: monolito Docker](#entrada-08--04-09-y-05-09-2026--reorientación-del-despliegue-monolito-docker)
    - [Entrada 09 · 06-09-2026 · Cierre de iteración, auditoría y este diario](#entrada-09--06-09-2026--cierre-de-iteración-auditoría-y-este-diario)
+   - [Entrada 10 · 06-09-2026 (tarde) · Publicación en producción verificada](#entrada-10--06-09-2026-tarde--publicación-en-producción-verificada)
 5. [Documentos adjuntos y entregables](#4-documentos-adjuntos-y-entregables)
 6. [Trazabilidad completa del repositorio](#5-trazabilidad-completa-del-repositorio)
 7. [Reflexión crítica del periodo](#6-reflexión-crítica-del-periodo)
@@ -444,7 +446,7 @@ También quedó una deuda consciente: `Imagen` no tiene clave foránea hacia `Pr
 #### Hallazgos de la auditoría
 | # | Hallazgo | Estado |
 |---|---|---|
-| 1 | `WHATSAPP_NUMBER` sigue en `'NUMERO_PLACEHOLDER'` en `Front/src/components/WhatsAppButton.tsx` | **Bloqueante para publicar** — el botón flotante y el cierre del carrito llevan a una dirección rota |
+| 1 | `WHATSAPP_NUMBER` sigue en `'NUMERO_PLACEHOLDER'` en `Front/src/components/WhatsAppButton.tsx` | **Bloqueante** — el botón flotante y el cierre del carrito llevan a una dirección rota; se agrava con la publicación del mismo día (ver Entrada 10) |
 | 2 | `apps/Back/docker-compose.yml` está borrado en el árbol de trabajo (aún existe en `HEAD`) | **Bloqueante para desarrollo** — `docker compose up -d db` no funciona hoy; `como-correr.md` sigue describiendo ese flujo |
 | 3 | `documentacion` y `main` divergen desde `6fba7f3`: 44 archivos de diferencia, 1.280 inserciones y 1.996 borrados | **Abierto** — el trabajo de despliegue más reciente no está en `main` |
 | 4 | El `README.md` de la raíz lista scripts `lint`, `typecheck` y `format` que no existen | **Documentación heredada** del scaffold original |
@@ -467,6 +469,48 @@ La auditoría confirma un patrón que atraviesa todo el periodo: **el equipo con
 
 #### Evidencia
 `git log --all --graph`, `git diff --stat origin/main documentacion`, `git status`, `git merge-base documentacion origin/main` → `6fba7f3`.
+
+---
+
+### Entrada 10 · 06-09-2026 (tarde) · Publicación en producción verificada
+
+**Responsable:** Stiven Melo (desarrollador · despliegue) · **Semana 3**
+
+#### Objetivos del día
+- Cerrar el objetivo específico 4 en su primera mitad: dejar la plataforma **efectivamente publicada**, no sólo empaquetada.
+- Comprobar la cadena completa aplicación → base de datos en el entorno real.
+
+#### Actividades realizadas
+1. Despliegue del monolito en **Render** desde el `Dockerfile` de la raíz, con la base de datos en **Neon**, siguiendo los 5 pasos de `docs/apps/despliegue.md`.
+2. Verificación de los puntos de comprobación del Paso 5 de esa guía.
+
+#### Resultado de la verificación
+
+| Comprobación | URL | Resultado |
+|---|---|---|
+| Salud de la aplicación y de la base | `https://sanddy-almacen.onrender.com/api/health` | ✅ `{"status":"ok"}` |
+| Catálogo público servido por el mismo origen | `https://sanddy-almacen.onrender.com/` | ✅ Responde la SPA (el HTML inicial sólo trae el título; el catálogo se pinta en el navegador) |
+| Datos del seed en la base publicada | `https://sanddy-almacen.onrender.com/api/productos` | ✅ **12 productos** en las 3 categorías: `belleza` (4), `cabello` (4), `hogar` (4) |
+| Panel de administración | `https://sanddy-almacen.onrender.com/admin` | ✅ Ruta servida por el `setNotFoundHandler` del SPA |
+
+#### Logros alcanzados
+- **La plataforma está publicada y accesible 24/7**, que era el RNF3 y la promesa central del proyecto frente a la clienta.
+- **La arquitectura monolito quedó validada en el entorno real**: la API bajo `/api` y el front en la raíz comparten origen, que es exactamente la condición que hace viable la cookie de sesión `SameSite=Lax`.
+- `migrate deploy` se aplicó solo al arrancar el contenedor y el seed sembrado desde local quedó visible en producción: la cadena Docker → Render → Neon funciona de punta a punta.
+- **Costo: $0**, muy por debajo del techo de $30.000 COP/mes (RNF2 y CR2).
+
+#### Desafíos encontrados
+- **El plan gratuito de Render apaga el servicio tras 15 minutos sin tráfico**, y la siguiente visita tarda cerca de un minuto en responder. Para una tienda que quiere proyectar profesionalismo, ese primer minuto es justo la peor impresión posible.
+
+#### Soluciones implementadas
+- La limitación quedó documentada en el `README.md` y en `despliegue.md`, con la recomendación práctica de abrir el sitio un par de minutos antes de mostrarlo.
+- *(Pendiente de decisión)* Si el arranque en frío resulta inaceptable para la clienta, las salidas son un *ping* periódico o subir de plan — y esto último rompería el techo de costo, así que es una decisión de negocio, no técnica.
+
+#### Reflexión
+Publicar cambia el estatus de todo lo anterior: hasta hoy el proyecto era *código que compila*, y desde hoy es *un servicio al que cualquiera puede entrar*. También reordena lo que falta: con la plataforma arriba, el cuello de botella ya no es técnico sino de validación — **H1 a H5 siguen sin medirse**, y ahora por fin existe el entorno donde se pueden medir. La otra consecuencia es que el `WHATSAPP_NUMBER` en `'NUMERO_PLACEHOLDER'` deja de ser una deuda menor: con el sitio público, es un botón roto que un cliente real puede pulsar.
+
+#### Evidencia
+`https://sanddy-almacen.onrender.com/api/health` → `{"status":"ok"}` · `https://sanddy-almacen.onrender.com/api/productos` → 12 productos · imagen construida desde [`Dockerfile`](../../Dockerfile) · procedimiento en [`docs/apps/despliegue.md`](../apps/despliegue.md).
 
 ---
 
@@ -583,7 +627,7 @@ Autoría de **Stiven Melo** (desarrollador · despliegue), salvo indicación con
 
 **4. Cero pruebas automatizadas.** El plan de fases dedica la Fase 9 al *testing*, y no se ejecutó. `apps/Front/tests/` y `docs/apps/front-tests.md` son *placeholders*. Cada refactor —y hubo dos grandes— se validó a ojo. La única verificación disponible hoy es que `npm run build` compile.
 
-**5. Se prometió validar y aún no se ha validado.** El canvas define 9 experimentos con umbrales; el objetivo específico 4 compromete un piloto de 20–30 productos reales, pruebas de usabilidad con 5 clientes y una prueba de carga con la administradora. **Nada de eso se ha ejecutado todavía.** H1–H5 siguen siendo hipótesis en el sentido estricto: ni confirmadas ni refutadas.
+**5. Se prometió validar y aún no se ha medido.** El canvas define 9 experimentos con umbrales; el objetivo específico 4 compromete un piloto de 20–30 productos reales, pruebas de usabilidad con 5 clientes y una prueba de carga con la administradora. La plataforma ya está publicada (Entrada 10), pero **ninguno de esos experimentos se ha ejecutado**. H1–H5 siguen siendo hipótesis en el sentido estricto: ni confirmadas ni refutadas. La diferencia respecto a ayer es que ya no falta la excusa del entorno.
 
 ### Las tres lecciones que quedan
 
@@ -601,26 +645,26 @@ Autoría de **Stiven Melo** (desarrollador · despliegue), salvo indicación con
 
 - ✅ **RF1–RF9 completos**: autenticación de admin, CRUD de productos y categorías, vista tipo hoja de cálculo con import/export CSV, catálogo público sin registro, buscador y filtros, ficha de producto, carrito de interés y generación de pedido `SA-XXXX` con QR y enlace de WhatsApp.
 - ✅ **Seguridad base**: bcrypt, JWT firmado en cookie `httpOnly`/`SameSite=Lax` de 8 horas, separación estricta entre rutas públicas y protegidas por `requireAuth`, validación de tipo y tamaño en la subida de imágenes con SVG excluido.
-- ✅ **Empaquetado desplegable**: `Dockerfile` monolito multi-etapa, migraciones aplicadas al arrancar el contenedor, guía completa de publicación en Render + Neon dentro del presupuesto de $30.000 COP/mes.
+- ✅ **Publicado y en línea**: **https://sanddy-almacen.onrender.com/** — monolito Docker en Render con la base en Neon, migraciones aplicadas al arrancar el contenedor, `/api/health` en `ok` y los 12 productos del seed servidos por la API. Costo $0, dentro del techo de $30.000 COP/mes.
 - ✅ **Documentación técnica** de arquitectura, funcionamiento, ejecución local y despliegue.
 
 ### Pendientes, por prioridad
 
 | Prioridad | Pendiente | Por qué importa |
 |---|---|---|
-| 🔴 **Bloqueante** | Rellenar `WHATSAPP_NUMBER` en `Front/src/components/WhatsAppButton.tsx` (hoy `'NUMERO_PLACEHOLDER'`) | Sin esto, el botón flotante y el cierre del carrito llevan a una dirección rota: el flujo de negocio completo queda inutilizado |
+| 🔴 **Bloqueante** | Rellenar `WHATSAPP_NUMBER` en `Front/src/components/WhatsAppButton.tsx` (hoy `'NUMERO_PLACEHOLDER'`) | **Urgente ahora que el sitio es público**: el botón flotante y el cierre del carrito llevan a una dirección rota, y un cliente real puede pulsarlos. Inutiliza el flujo de negocio completo |
 | 🔴 **Bloqueante** | Restaurar `apps/Back/docker-compose.yml` (borrado en el árbol de trabajo, aún presente en `HEAD`) | Sin él, `docker compose up -d db` no funciona y `como-correr.md` describe un flujo inejecutable |
 | 🟠 **Alto** | Integrar `documentacion` en `main` y decidir el destino de la migración a Azure | Dos ramas con dos arquitecturas incompatibles; `main` no tiene el trabajo de despliegue más reciente |
-| 🟠 **Alto** | Desplegar de verdad en Render + Neon y verificar los 4 pasos de comprobación de `despliegue.md` | El objetivo específico 4 exige *"la plataforma desplegada en producción"*; hoy sólo está el empaquetado |
 | 🟠 **Alto** | Ejecutar los experimentos del box 08 del canvas | H1–H5 siguen sin validar: el ciclo Lean UX está incompleto sin la fase de medición |
 | 🟡 **Medio** | Implementar la Fase 9 del plan (*testing*) y ESLint en ambas apps | Dos refactors grandes se validaron sin red de seguridad |
 | 🟡 **Medio** | Corregir `README.md` raíz (scripts inexistentes) y `como-correr.md` (`VITE_API_URL` ahora es `/api`) | Documentación que contradice el código en vigor |
 | 🟢 **Bajo** | *Rate limiting* en el login | Limitación conocida y documentada en `routes/auth.ts` |
 | 🟢 **Bajo** | Rutina de limpieza de imágenes huérfanas | Deuda documentada, con la consulta SQL ya escrita en `architecture.md` |
+| 🟢 **Bajo** | Decidir qué hacer con el arranque en frío de Render (~1 min tras 15 min sin tráfico) | Es la peor primera impresión posible para una tienda; subir de plan rompería el techo de costo, así que es decisión de negocio |
 
 ### Cierre de la iteración 1
 
-El **objetivo específico 3** (Construir) está cumplido: los 9 requerimientos funcionales están implementados y verificados con `npm run build` en ambas apps. Los objetivos **1** (Caracterizar) y **2** (Diseñar) están cumplidos y documentados. El objetivo **4** (Validar) es el trabajo de la iteración 2: **desplegar, medir y refutar o confirmar H1–H5**.
+Los objetivos específicos **1** (Caracterizar), **2** (Diseñar) y **3** (Construir) están cumplidos y documentados: los 9 requerimientos funcionales están implementados y verificados con `npm run build` en ambas apps. El objetivo **4** (Validar) está **cumplido a medias**: la plataforma ya está *desplegada en producción* y verificada en https://sanddy-almacen.onrender.com/, pero falta la parte de medición — el piloto con 20–30 productos reales, las pruebas de usabilidad con 5 clientes y la prueba de carga de inventario con la administradora. Ése es el trabajo de la iteración 2: **medir y refutar o confirmar H1–H5** sobre un entorno que, ahora sí, existe.
 
 ---
 
@@ -637,4 +681,4 @@ El **objetivo específico 3** (Construir) está cumplido: los 9 requerimientos f
 
 *Diario de Trabajo — Grupo Sanddy Almacén · Proyecto final trend+tech · Universidad EAN*
 *Sergio Alejandro Rey Mateus · Brian David Pérez Herrera · Stiven Daniel Melo Guayazán*
-*Actualizado el 06-09-2026 · Última evidencia registrada: commit `b27b236`*
+*Actualizado el 06-09-2026 · Última evidencia registrada: commit `b27b236` y despliegue verificado en https://sanddy-almacen.onrender.com/*

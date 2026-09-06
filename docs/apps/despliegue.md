@@ -1,5 +1,7 @@
 # Cómo publicar Sanddy Almacén gratis (Render + Neon)
 
+> ✅ **Ya está publicada siguiendo esta guía: <https://sanddy-almacen.onrender.com/>** (`/api/health` responde `{"status":"ok"}`). Lo de abajo es el procedimiento completo, por si hay que rehacerlo o desplegar otra instancia.
+
 La app se publica como **monolito**: un solo servicio sirve la API bajo `/api` y, en la misma dirección, el catálogo y el panel. La base de datos vive aparte, en Neon.
 
 No es solo por ahorrar un servicio. La sesión del admin viaja en una cookie `SameSite=Lax`: si el front viviera en un dominio y el backend en otro, el navegador la trataría como cookie de terceros, no la enviaría, y **no se podría entrar al panel**. Un solo origen elimina el problema de raíz.

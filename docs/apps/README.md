@@ -2,6 +2,8 @@
 
 Catálogo, lista de interés y panel de administración de inventario para una tienda pequeña. El frontend vive en [`Front/`](../../apps/Front) y el backend en [`Back/`](../../apps/Back); los datos se guardan en PostgreSQL.
 
+🌐 **En producción: <https://sanddy-almacen.onrender.com/>** — el catálogo en la raíz, el panel en `/admin` y el estado del servicio en `/api/health`.
+
 📖 [Cómo funciona la aplicación](./como-funciona.md) — explicación técnica en lenguaje sencillo.
 🚀 [Guía paso a paso para correrla](./como-correr.md) — instrucciones detalladas, incluyendo solución de problemas comunes.
 🌐 [Cómo publicarla gratis](./despliegue.md) — desplegar el monolito en Render con la base en Neon, paso a paso.
